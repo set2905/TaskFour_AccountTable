@@ -8,6 +8,13 @@
 <PageTitle>Users</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large">
     <h1>Users</h1>
+    <MudPaper Elevation="25">
+        <MudToolBar>
+            <MudButton Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
+            <MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
+        </MudToolBar>
+    </MudPaper>
     <MudTable T="UserViewModel" Loading="@isTableLoading" Items="@users" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Bordered="true" Striped="true"
               @bind-SelectOnRowClick="@_selectOnRowClick">
         <HeaderContent>
@@ -54,5 +61,10 @@
         {
             exception.Redirect();
         }
+    }
+
+    protected async Task BlockSelected()
+    {
+        
     }
 }
