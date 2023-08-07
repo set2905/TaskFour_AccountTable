@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor.Services;
 using TaskFour_AccountTable.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -14,5 +15,7 @@ builder.Services.AddHttpClient("TaskFour_AccountTable.ServerAPI", client => clie
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("TaskFour_AccountTable.ServerAPI"));
 
 builder.Services.AddApiAuthorization();
+
+builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();
