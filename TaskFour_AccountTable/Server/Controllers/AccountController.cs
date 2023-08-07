@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using TaskFour_AccountTable.Server.Filter;
 using TaskFour_AccountTable.Server.Models;
 using TaskFour_AccountTable.Shared.UserDisplayModel;
 
 namespace TaskFour_AccountTable.Server.Controllers
 {
-
-    [Authorize(Policy = "IsBlockedPolicy")]
+    [TypeFilter(typeof(IsNotBlockedAttribute))]
+   // [IsNotBlockedAttribute]
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
