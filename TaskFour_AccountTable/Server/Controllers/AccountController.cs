@@ -28,7 +28,7 @@ namespace TaskFour_AccountTable.Server.Controllers
             List<UserViewModel> usersViewModels = new List<UserViewModel>();
             foreach (User u in users)
             {
-                usersViewModels.Add(new UserViewModel(u.Id, u.Email, DateTime.Now, DateTime.Now, u.IsBlocked, u.UserName));
+                usersViewModels.Add(new UserViewModel(u.Id, u.Email, u.LastLoginDate, u.RegistrationDate, u.IsBlocked, u.UserName));
             }
             return usersViewModels;
         }

@@ -8,7 +8,7 @@ namespace TaskFour_AccountTable.Shared.UserDisplayModel
 {
     public class UserViewModel
     {
-        public UserViewModel(string id, string email, DateTime lastLogin, DateTime registrationDate, bool isBlocked, string? name)
+        public UserViewModel(string id, string? email, DateTime lastLogin, DateTime registrationDate, bool isBlocked, string? name)
         {
             Id=id;
             Email=email;
@@ -19,7 +19,7 @@ namespace TaskFour_AccountTable.Shared.UserDisplayModel
         }
 
         public string Id { get; set; } 
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public DateTime LastLogin { get; set; }
         public DateTime RegistrationDate { get; set; }  
         public bool IsBlocked { get; set; }

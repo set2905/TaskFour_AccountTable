@@ -31,7 +31,11 @@ else
             @foreach (var user in users)
             {
                 <tr>
+                    <td>@user.Id</td>
                     <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.LastLogin.ToString("dd.MM.yy HH:mm")</td>
+                    <td>@user.RegistrationDate.ToString("dd.MM.yy HH:mm")</td>
                 </tr>
             }
         </tbody>
