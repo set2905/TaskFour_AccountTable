@@ -25,6 +25,7 @@ else
                 <th>Email</th>
                 <th>Last login</th>
                 <th>Registration date</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -36,6 +37,7 @@ else
                     <td>@user.Email</td>
                     <td>@user.LastLogin.ToString("dd.MM.yy HH:mm")</td>
                     <td>@user.RegistrationDate.ToString("dd.MM.yy HH:mm")</td>
+                    <td>@(user.IsBlocked?"Blocked":"Active")</td>
                 </tr>
             }
         </tbody>
