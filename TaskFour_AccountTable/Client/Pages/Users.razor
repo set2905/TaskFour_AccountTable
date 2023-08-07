@@ -20,7 +20,11 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Name</th>
+                <th>Email</th>
+                <th>Last login</th>
+                <th>Registration date</th>
             </tr>
         </thead>
         <tbody>
@@ -36,13 +40,13 @@ else
 
 @code {
 
-    private UserDisplayModel[]? users;
+    private UserViewModel[]? users;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            users = await Http.GetFromJsonAsync<UserDisplayModel[]>("Account");
+            users = await Http.GetFromJsonAsync<UserViewModel[]>("Account");
         }
         catch (AccessTokenNotAvailableException exception)
         {
