@@ -3,9 +3,10 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Text.Json;
 @using System.Text;
+@using TaskFour_AccountTable.Client.Services.Interfaces;
 @using TaskFour_AccountTable.Shared.UserDisplayModel;
 @attribute [Authorize]
-@inject HttpClient Http
+@inject IAccountService AccountService
 
 <PageTitle>Users</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large">
@@ -46,7 +47,7 @@
 
     @code {
 
-    private IEnumerable<UserViewModel> users = new List<UserViewModel>();
+    private List<UserViewModel> users = new();
     private HashSet<UserViewModel> selectedItems = new();
     private bool _selectOnRowClick = true;
     private bool isTableLoading = true;
@@ -56,7 +57,7 @@
         try
         {
             isTableLoading = true;
-            users = await Http.GetFromJsonAsync<UserViewModel[]>("Account");
+            users = await AccountService.GetUsers();
             isTableLoading = false;
         }
         catch (AccessTokenNotAvailableException exception)
@@ -68,10 +69,10 @@
     protected async Task BlockSelected()
     {
         isTableLoading = true;
-        HttpResponseMessage response = await Http.PostAsJsonAsync<string[]>("Account", selectedItems.Select(x => x.Id.ToString()).ToArray());
-        IEnumerable<string>? result = await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
-        foreach (UserViewModel user in users.Where(x => result.Contains(x.Id))) user.IsBlocked = true;
+        await AccountService.BlockUsers(selectedItems);
         isTableLoading = false;
 
     }
+
+
 }

@@ -37,8 +37,8 @@ namespace TaskFour_AccountTable.Server.Controllers
         }
         //[HttpPost("{userIds, valueToSet}")]
         [HttpPost]
-
-        public async Task<IActionResult> SetBlock(string[] userIds)
+        [Route("SetBlock")]
+        public async Task<IActionResult> SetBlock([FromBody]string[] userIds)
         {
             List<string> succesfulyChangedIds = new();
             foreach (string userId in userIds)

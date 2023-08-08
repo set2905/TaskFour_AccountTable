@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using TaskFour_AccountTable.Client;
+using TaskFour_AccountTable.Client.Services;
+using TaskFour_AccountTable.Client.Services.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,5 +19,7 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 builder.Services.AddApiAuthorization();
 
 builder.Services.AddMudServices();
+
+builder.Services.AddTransient<IAccountService, AccountService>();
 
 await builder.Build().RunAsync();
