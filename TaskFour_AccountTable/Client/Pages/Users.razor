@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Text.Json;
+@using System.Text;
 @using TaskFour_AccountTable.Shared.UserDisplayModel;
 @attribute [Authorize]
 @inject HttpClient Http
@@ -10,7 +12,7 @@
     <h1>Users</h1>
     <MudPaper Elevation="25">
         <MudToolBar>
-            <MudButton Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
+            <MudButton OnClick="@BlockSelected" Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
             <MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
             <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
         </MudToolBar>
@@ -44,7 +46,7 @@
 
     @code {
 
-    private IEnumerable<UserViewModel>? users = new List<UserViewModel>();
+    private IEnumerable<UserViewModel> users = new List<UserViewModel>();
     private HashSet<UserViewModel> selectedItems = new();
     private bool _selectOnRowClick = true;
     private bool isTableLoading = true;
@@ -65,6 +67,11 @@
 
     protected async Task BlockSelected()
     {
-        
+        isTableLoading = true;
+        HttpResponseMessage response = await Http.PostAsJsonAsync<string[]>("Account", selectedItems.Select(x => x.Id.ToString()).ToArray());
+        IEnumerable<string>? result = await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
+        foreach (UserViewModel user in users.Where(x => result.Contains(x.Id))) user.IsBlocked = true;
+        isTableLoading = false;
+
     }
 }

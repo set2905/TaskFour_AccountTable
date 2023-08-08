@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Identity;
 using TaskFour_AccountTable.Server.Models;
-using Microsoft.AspNetCore.Http;
-using System.Security.Principal;
 using System.Security.Claims;
 
 namespace TaskFour_AccountTable.Server.Filter
@@ -21,7 +18,7 @@ namespace TaskFour_AccountTable.Server.Filter
 
         public async void OnAuthorization(AuthorizationFilterContext context)
         {
-            ClaimsIdentity? identity = (ClaimsIdentity)context.HttpContext.User.Identity;
+            ClaimsIdentity? identity = (ClaimsIdentity?)context.HttpContext.User.Identity;
             if (identity==null)
             {
                 context.Result = new UnauthorizedResult();

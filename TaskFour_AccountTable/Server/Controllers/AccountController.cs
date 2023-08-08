@@ -11,7 +11,6 @@ using TaskFour_AccountTable.Shared.UserDisplayModel;
 namespace TaskFour_AccountTable.Server.Controllers
 {
     [TypeFilter(typeof(IsNotBlockedAttribute))]
-   // [IsNotBlockedAttribute]
     [Authorize]
     [Route("[controller]")]
     [ApiController]
@@ -36,23 +35,38 @@ namespace TaskFour_AccountTable.Server.Controllers
             }
             return usersViewModels;
         }
-        public async Task<IEnumerable<UserViewModel>> BlockUsers(string[] userIds)
+        //[HttpPost("{userIds, valueToSet}")]
+        [HttpPost]
+
+        public async Task<IActionResult> SetBlock(string[] userIds)
         {
-            List<UserViewModel> succesfulyBlockedUsers = new();
+            List<string> succesfulyChangedIds = new();
             foreach (string userId in userIds)
             {
                 User? user = await userManager.FindByIdAsync(userId);
-                if (user == null) continue;
-                if (user.IsBlocked) continue;
+                if (user == null||user.IsBlocked==true) continue;
                 user.IsBlocked = true;
-                await userManager.UpdateAsync(user);
-                succesfulyBlockedUsers.Add(GetUserViewModel(user));
-               // await userManager.RemoveAuthenticationTokenAsync(user,);
-                //userManager.Log
-
+                if (!(await userManager.UpdateAsync(user)).Succeeded) continue;
+                succesfulyChangedIds.Add(userId);
             }
-            return succesfulyBlockedUsers;
+            return new JsonResult(succesfulyChangedIds);
         }
+
+        //[HttpPost]
+
+        //public async Task<IActionResult> DeleteUsers(string[] userIds)
+        //{
+        //    List<string> succesfulyDeletedUsers = new();
+        //    foreach (string userId in userIds)
+        //    {
+        //        User? user = await userManager.FindByIdAsync(userId);
+        //        if (user == null||user.IsBlocked) continue;
+        //        user.IsBlocked = true;
+        //        if (!(await userManager.UpdateAsync(user)).Succeeded) continue;
+        //        succesfulyDeletedUsers.Add(userId);
+        //    }
+        //    return new JsonResult(succesfulyDeletedUsers);
+        //}
 
         private UserViewModel GetUserViewModel(User user)
         {
