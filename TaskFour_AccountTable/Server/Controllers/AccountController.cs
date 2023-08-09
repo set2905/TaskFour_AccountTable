@@ -53,6 +53,8 @@ namespace TaskFour_AccountTable.Server.Controllers
         [Route("SetBlock")]
         public async Task<IActionResult> SetBlock(SetBlockModel setBlockModel)
         {
+            if(setBlockModel==null)
+                return BadRequest("Passed model is null");
             List<string> succesfulyChangedIds = new();
             foreach (string userId in setBlockModel.userIds)
             {
@@ -75,6 +77,8 @@ namespace TaskFour_AccountTable.Server.Controllers
         [Route("DeleteUsers")]
         public async Task<IActionResult> DeleteUsers(string[] userIds)
         {
+            if (userIds==null)
+                return BadRequest("Passed userIds is null");
             List<string> succesfulyDeletedUsers = new();
             foreach (string userId in userIds)
             {
