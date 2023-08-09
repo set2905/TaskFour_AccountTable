@@ -14,7 +14,7 @@ namespace TaskFour_AccountTable.Client.Services
             this.snackbar = snackbar;
         }
 
-        public async Task<bool> IsCurrentUserBlocked()
+        public async Task<bool?> IsUserBlocked(string id)
         {
             try
             {
@@ -23,35 +23,25 @@ namespace TaskFour_AccountTable.Client.Services
             catch (Exception ex)
             {
                 snackbar.Add(ex.Message, Severity.Error);
-                return false;
-            }
-        }
-        public async Task<string> GetCurrentUserId()
-        {
-            try
-            {
-                return await GetAsync<string>("Account/GetMyId")??string.Empty;
-            }
-            catch (Exception ex)
-            {
-                snackbar.Add(ex.Message, Severity.Error);
-                return string.Empty;
+                return null;
             }
         }
         public async Task SetBlock(IEnumerable<UserViewModel> users, bool blockValue = true)
         {
-            IEnumerable<string> result;
+            IEnumerable<string>? result;
             try
             {
                 result = await PostAsync<IEnumerable<string>, SetBlockModel>(
                     "Account/SetBlock",
-                    new SetBlockModel(users.Select(x => x.Id).ToArray(), blockValue))??new List<string>();
+                    new SetBlockModel(users.Select(x => x.Id).ToArray(), blockValue));
             }
             catch (Exception ex)
             {
                 snackbar.Add(ex.Message, Severity.Error);
                 return;
             }
+
+            if (result==null) return;
 
             foreach (UserViewModel user in users.Where(x => result.Contains(x.Id)))
             {
@@ -65,7 +55,7 @@ namespace TaskFour_AccountTable.Client.Services
         /// <returns>
         /// Users that were successfuly deleted
         /// </returns>
-        public async Task<IEnumerable<string>> DeleteUsers(IEnumerable<UserViewModel> users)
+        public async Task<IEnumerable<string>?> DeleteUsers(IEnumerable<UserViewModel> users)
         {
             try
             {
@@ -74,11 +64,12 @@ namespace TaskFour_AccountTable.Client.Services
             catch (Exception ex)
             {
                 snackbar.Add(ex.Message, Severity.Error);
-                return new List<string>();
+                return null;
+
             }
         }
 
-        public async Task<List<UserViewModel>> GetAllUsers()
+        public async Task<List<UserViewModel>?> GetAllUsers()
         {
             try
             {
@@ -87,7 +78,7 @@ namespace TaskFour_AccountTable.Client.Services
             catch (Exception ex)
             {
                 snackbar.Add(ex.Message, Severity.Error);
-                return new();
+                return null;
             }
 
         }

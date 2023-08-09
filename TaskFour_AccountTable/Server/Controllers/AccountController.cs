@@ -12,7 +12,7 @@ using TaskFour_AccountTable.Shared.UserDisplayModel;
 namespace TaskFour_AccountTable.Server.Controllers
 {
     [Authorize]
-    [TypeFilter(typeof(IsNotBlockedAttribute))]
+    [TypeFilter(typeof(DenyBlockedAttribute))]
 
     [Route("[controller]")]
     [ApiController]
@@ -42,23 +42,16 @@ namespace TaskFour_AccountTable.Server.Controllers
         }
 
         [HttpGet]
+        [AllowBlocked]
         [Route("AmIBlocked")]
-        public async Task<bool> IsCurrentUserBlocked()
+        public async Task<IActionResult> IsUserBlocked(string id)
         {
-            User? currentuser = await userManager.GetUserAsync(User);
-            if (currentuser==null) 
-                return true;
-            return currentuser.IsBlocked;
-        }
-        [HttpGet]
-        [Route("GetMyId")]
-        public async Task<IActionResult> GetCurrentUserId()
-        {
-            User? currentuser = await userManager.GetUserAsync(User);
-            if (currentuser==null) 
+            User? currentUser = await GetUser(id);
+            if (currentUser==null)
                 return BadRequest("User not found");
-            return new JsonResult(currentuser.Id);
+            return new JsonResult(currentUser.IsBlocked);
         }
+
         [HttpPost]
         [Route("SetBlock")]
         public async Task<IActionResult> SetBlock(SetBlockModel setBlockModel)
@@ -93,13 +86,19 @@ namespace TaskFour_AccountTable.Server.Controllers
 
         private async Task LogoutIfBlockedAsync()
         {
-            if (await IsCurrentUserBlocked())
+            User? currentUser = await GetUser();
+            if (currentUser == null) return;
+            if (currentUser.IsBlocked)
                 await signInManager.SignOutAsync();
 
         }
         private UserViewModel GetUserViewModel(User user)
         {
             return new UserViewModel(user.Id, user.Email, user.LastLoginDate, user.RegistrationDate, user.IsBlocked, user.UserName);
+        }
+        private async Task<User?> GetUser(string id)
+        {
+            return await userManager.FindByIdAsync(id);
         }
     }
 }

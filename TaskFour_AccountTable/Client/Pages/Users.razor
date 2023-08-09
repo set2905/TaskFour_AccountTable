@@ -3,48 +3,55 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using System.Text.Json;
 @using System.Text;
+@using System.Security.Claims;
 @using TaskFour_AccountTable.Client.Services.Interfaces;
 @using TaskFour_AccountTable.Shared.UserDisplayModel;
 @attribute [Authorize]
 @inject IAccountService AccountService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-
-<PageTitle>Users</PageTitle>
-<MudContainer MaxWidth="MaxWidth.Large">
-    <h1>Users</h1>
-    <MudPaper Elevation="25">
-        <MudToolBar>
-            <MudButton OnClick="@BlockSelected" Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
-            <MudIconButton OnClick="@UnblockSelected" Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
-            <MudIconButton OnClick="@DeleteSelected" Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
-        </MudToolBar>
-    </MudPaper>
-    <MudTable T="UserViewModel" Loading="@isTableLoading" Items="@users" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Bordered="true" Striped="true"
-              @bind-SelectOnRowClick="@_selectOnRowClick">
-        <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Name</MudTh>
-            <MudTh>Email</MudTh>
-            <MudTh>Last login</MudTh>
-            <MudTh>Registration date</MudTh>
-            <MudTh>Status</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Id">@context.Id</MudTd>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Email">@context.Email</MudTd>
-            <MudTd DataLabel="Last login">@context.LastLogin</MudTd>
-            <MudTd DataLabel="Registration date">@context.RegistrationDate</MudTd>
-            <MudTd DataLabel="Status">@(context.IsBlocked ? "Blocked" : "Active")</MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager PageSizeOptions="new int[]{10, 25, 50, 100}" />
-            </PagerContent>
-            <FooterContent>
-            </FooterContent>
-        </MudTable>
-    </MudContainer>
+<AuthorizeView>
+    <Authorized>
+        <PageTitle>Users</PageTitle>
+        <MudContainer MaxWidth="MaxWidth.Large">
+            <h1>Users</h1>
+            <MudPaper Elevation="25">
+                <MudToolBar>
+                    <MudButton OnClick="@BlockSelected" Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
+                    <MudIconButton OnClick="@UnblockSelected" Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
+                    <MudIconButton OnClick="@DeleteSelected" Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
+                </MudToolBar>
+            </MudPaper>
+            <MudTable T="UserViewModel" Loading="@isTableLoading" Items="@users" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Bordered="true" Striped="true"
+                      @bind-SelectOnRowClick="@_selectOnRowClick">
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Last login</MudTh>
+                    <MudTh>Registration date</MudTh>
+                    <MudTh>Status</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="user">
+                    <MudTd DataLabel="Id">@user.Id</MudTd>
+                    <MudTd DataLabel="Name">@user.Name</MudTd>
+                    <MudTd DataLabel="Email">@user.Email</MudTd>
+                    <MudTd DataLabel="Last login">@user.LastLogin</MudTd>
+                    <MudTd DataLabel="Registration date">@user.RegistrationDate</MudTd>
+                    <MudTd DataLabel="Status">@(user.IsBlocked ? "Blocked" : "Active")</MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[]{10, 25, 50, 100}" />
+                    </PagerContent>
+                    <FooterContent>
+                    </FooterContent>
+                </MudTable>
+            </MudContainer>
+        </Authorized>
+        <NotAuthorized>
+        </NotAuthorized>
+    </AuthorizeView>
 
 
     @code {
@@ -59,7 +66,7 @@
         try
         {
             isTableLoading = true;
-            users = await AccountService.GetAllUsers();
+            users = await AccountService.GetAllUsers()??new();
             isTableLoading = false;
         }
         catch (AccessTokenNotAvailableException exception)
@@ -70,10 +77,15 @@
     protected async Task DeleteSelected()
     {
         isTableLoading = true;
-        string currentUserId = await AccountService.GetCurrentUserId();
-        if (currentUserId!=string.Empty)
+        string? currentUserId = await AccountService.GetCurrentUserId();
+        if (currentUserId!=null)
         {
-            IEnumerable<string> result = await AccountService.DeleteUsers(selectedItems);
+            IEnumerable<string>? result = await AccountService.DeleteUsers(selectedItems);
+            if (result==null)
+            {
+                isTableLoading = false;
+                return;
+            }
             users = users.Where(x => !result.Contains(x.Id)).ToList();
             if (result.Contains(currentUserId))
                 Logout();
@@ -85,7 +97,9 @@
     {
         isTableLoading = true;
         await AccountService.SetBlock(selectedItems);
-        if (await AccountService.IsCurrentUserBlocked())
+        bool? isBlocked = await AccountService.IsUserBlocked();
+
+        if (isBlocked==true)
             Logout();
         isTableLoading = false;
     }
@@ -99,8 +113,14 @@
     private void Logout()
     {
         Navigation.NavigateToLogout("authentication/logout");
-
     }
 
+    private async Task<string?> GetUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+
+    }
 
 }
