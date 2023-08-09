@@ -51,7 +51,6 @@
             </MudContainer>
         </Authorized>
         <NotAuthorized>
-            @*<RedirectToLogin/>*@
         </NotAuthorized>
     </AuthorizeView>
 
@@ -100,31 +99,36 @@
     {
         isTableLoading = true;
         await AccountService.SetBlock(selectedItems);
+        await LogoutIfBlocked();
+        isTableLoading = false;
+    }
+
+
+    protected async Task UnblockSelected()
+    {
+        isTableLoading = true;
+        await AccountService.SetBlock(selectedItems, false);
+        isTableLoading = false;
+    }
+
+    private async Task LogoutIfBlocked()
+    {
         string? currentUserId = await GetUserId();
         if (currentUserId==null)
         {
             ShowError(USERID_NOT_FOUND);
-            isTableLoading = false;
             return;
         }
         var foundUser = FindUserById(currentUserId);
         if (foundUser == null)
         {
             ShowError(USER_NOT_FOUND);
-            isTableLoading = false;
             return;
         }
         bool isBlocked = foundUser.IsBlocked;
 
         if (isBlocked==true)
             Logout();
-        isTableLoading = false;
-    }
-    protected async Task UnblockSelected()
-    {
-        isTableLoading = true;
-        await AccountService.SetBlock(selectedItems, false);
-        isTableLoading = false;
     }
 
     private void Logout()

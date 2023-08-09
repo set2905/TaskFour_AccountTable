@@ -19,14 +19,15 @@ namespace TaskFour_AccountTable.Server.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<User> userManager)
         {
             this.userManager=userManager;
-            this.signInManager=signInManager;
         }
 
+        /// <returns>
+        /// All existing users from the database
+        /// </returns>
         [HttpGet]
         [Route("GetAll")]
 
@@ -41,7 +42,13 @@ namespace TaskFour_AccountTable.Server.Controllers
             return usersViewModels;
         }
 
-
+        /// <summary>
+        /// Sets block status on users with specified Ids
+        /// </summary>
+        /// <param name="setBlockModel.userIds"></param>
+        /// <returns>
+        /// Array of user ids that has been successfully changed
+        /// </returns>
         [HttpPost]
         [Route("SetBlock")]
         public async Task<IActionResult> SetBlock(SetBlockModel setBlockModel)
@@ -57,7 +64,13 @@ namespace TaskFour_AccountTable.Server.Controllers
             }
             return new JsonResult(succesfulyChangedIds);
         }
-
+        /// <summary>
+        /// Deletes users with <paramref name="userIds"/> from the database
+        /// </summary>
+        /// <param name="userIds"></param>
+        /// <returns>
+        /// Array of user ids that has been successfully changed
+        /// </returns>
         [HttpPost]
         [Route("DeleteUsers")]
         public async Task<IActionResult> DeleteUsers(string[] userIds)
@@ -76,10 +89,6 @@ namespace TaskFour_AccountTable.Server.Controllers
         private UserViewModel GetUserViewModel(User user)
         {
             return new UserViewModel(user.Id, user.Email, user.LastLoginDate, user.RegistrationDate, user.IsBlocked, user.UserName);
-        }
-        private async Task<User?> GetUser(string id)
-        {
-            return await userManager.FindByIdAsync(id);
         }
     }
 }

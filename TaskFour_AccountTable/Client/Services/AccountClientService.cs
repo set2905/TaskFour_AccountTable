@@ -13,7 +13,14 @@ namespace TaskFour_AccountTable.Client.Services
         {
             this.snackbar = snackbar;
         }
-
+        /// <summary>
+        ///  Sends POST request to set block status of <paramref name="users"/> to <paramref name="blockValue"/>
+        /// </summary>
+        /// <param name="users"></param>
+        /// <param name="blockValue"></param>
+        /// <returns>
+        /// Succesfully changed users
+        /// </returns>
         public async Task SetBlock(IEnumerable<UserViewModel> users, bool blockValue = true)
         {
             IEnumerable<string>? result;
@@ -56,7 +63,12 @@ namespace TaskFour_AccountTable.Client.Services
 
             }
         }
-
+        /// <summary>
+        /// Sends GET request to get all existing users
+        /// </summary>
+        /// <returns>
+        /// All users
+        /// </returns>
         public async Task<List<UserViewModel>?> GetAllUsers()
         {
             try
