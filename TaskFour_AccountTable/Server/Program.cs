@@ -1,8 +1,7 @@
+using kedzior.io.ConnectionStringConverter;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TaskFour_AccountTable.Server.Data;
 using TaskFour_AccountTable.Server.Models;
@@ -13,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")?? throw new InvalidOperationException("Connection string 'MYSQLCONNSTR_localdb' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString), ServiceLifetime.Transient);
+    options.UseMySQL(AzureMySQL.ToMySQLStandard(connectionString)));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
@@ -37,7 +36,6 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
-    // options.User.AllowedUserNameCharacters = null;
 });
 
 builder.Services.AddAuthentication()
@@ -50,7 +48,6 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -59,7 +56,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
