@@ -14,12 +14,14 @@ namespace TaskFour_AccountTable.Server.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<User> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<User> signInManager, ILogger<LoginModel> logger, UserManager<User> userManager)
         {
             _signInManager = signInManager;
             _logger = logger;
+            _userManager=userManager;
         }
 
         [BindProperty]
@@ -63,6 +65,12 @@ namespace TaskFour_AccountTable.Server.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
+                var user = await _userManager.FindByNameAsync(Input.Login);
+                if (user != null&&user.IsBlocked)
+                {
+                    ModelState.AddModelError(string.Empty, "Your user account is blocked.");
+                    return Page();
+                }
                 Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(
                     Input.Login,
                     Input.Password,
