@@ -9,6 +9,7 @@ namespace TaskFour_AccountTable.Client.Services
     public class AppMessageHandler : BaseAddressAuthorizationMessageHandler
     {
         NavigationManager NavigationManager { get; set; }
+
         public AppMessageHandler(IAccessTokenProvider provider, NavigationManager navigationManager) : base(provider, navigationManager)
         {
             NavigationManager=navigationManager;
@@ -22,7 +23,7 @@ namespace TaskFour_AccountTable.Client.Services
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 Console.WriteLine("MessageHandler 401");
-                NavigationManager.NavigateToLogin("authentication/login");
+                NavigationManager.NavigateToLogout("authentication/logout");
             }
 
             return response;

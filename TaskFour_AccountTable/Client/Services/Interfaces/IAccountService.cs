@@ -6,5 +6,6 @@ namespace TaskFour_AccountTable.Client.Services.Interfaces
     {
         public Task SetBlock(IEnumerable<UserViewModel> users, bool blockValue = true);
         public Task<List<UserViewModel>> GetAllUsers();
+        public Task<bool> IsCurrentUserBlocked();
     }
 }

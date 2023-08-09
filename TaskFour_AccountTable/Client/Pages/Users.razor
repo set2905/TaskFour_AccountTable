@@ -7,6 +7,8 @@
 @using TaskFour_AccountTable.Shared.UserDisplayModel;
 @attribute [Authorize]
 @inject IAccountService AccountService
+@inject NavigationManager Navigation
+
 
 <PageTitle>Users</PageTitle>
 <MudContainer MaxWidth="MaxWidth.Large">
@@ -70,6 +72,9 @@
     {
         isTableLoading = true;
         await AccountService.SetBlock(selectedItems);
+        if (await AccountService.IsCurrentUserBlocked())
+            Navigation.NavigateToLogout("authentication/logout");
+
         isTableLoading = false;
     }
     protected async Task UnblockSelected()
