@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TaskFour_AccountTable.Server.Data;
 using TaskFour_AccountTable.Server.Models;
 
@@ -32,6 +34,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
+    options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
     // options.User.AllowedUserNameCharacters = null;
 });
 

@@ -14,18 +14,6 @@ namespace TaskFour_AccountTable.Client.Services
             this.snackbar = snackbar;
         }
 
-        public async Task<bool?> IsUserBlocked(string id)
-        {
-            try
-            {
-                return await GetAsync<bool>("Account/AmIBlocked");
-            }
-            catch (Exception ex)
-            {
-                snackbar.Add(ex.Message, Severity.Error);
-                return null;
-            }
-        }
         public async Task SetBlock(IEnumerable<UserViewModel> users, bool blockValue = true)
         {
             IEnumerable<string>? result;

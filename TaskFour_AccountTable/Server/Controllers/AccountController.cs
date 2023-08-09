@@ -41,16 +41,6 @@ namespace TaskFour_AccountTable.Server.Controllers
             return usersViewModels;
         }
 
-        [HttpGet]
-        [AllowBlocked]
-        [Route("AmIBlocked")]
-        public async Task<IActionResult> IsUserBlocked(string id)
-        {
-            User? currentUser = await GetUser(id);
-            if (currentUser==null)
-                return BadRequest("User not found");
-            return new JsonResult(currentUser.IsBlocked);
-        }
 
         [HttpPost]
         [Route("SetBlock")]
@@ -65,7 +55,6 @@ namespace TaskFour_AccountTable.Server.Controllers
                 if (!(await userManager.UpdateAsync(user)).Succeeded) continue;
                 succesfulyChangedIds.Add(userId);
             }
-            await LogoutIfBlockedAsync();
             return new JsonResult(succesfulyChangedIds);
         }
 
@@ -84,14 +73,6 @@ namespace TaskFour_AccountTable.Server.Controllers
             return new JsonResult(succesfulyDeletedUsers);
         }
 
-        private async Task LogoutIfBlockedAsync()
-        {
-            User? currentUser = await GetUser();
-            if (currentUser == null) return;
-            if (currentUser.IsBlocked)
-                await signInManager.SignOutAsync();
-
-        }
         private UserViewModel GetUserViewModel(User user)
         {
             return new UserViewModel(user.Id, user.Email, user.LastLoginDate, user.RegistrationDate, user.IsBlocked, user.UserName);

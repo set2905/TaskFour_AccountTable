@@ -8,6 +8,7 @@
 @using TaskFour_AccountTable.Shared.UserDisplayModel;
 @attribute [Authorize]
 @inject IAccountService AccountService
+@inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -50,12 +51,14 @@
             </MudContainer>
         </Authorized>
         <NotAuthorized>
+            <RedirectToLogin/>
         </NotAuthorized>
     </AuthorizeView>
 
 
     @code {
-
+    private const string USER_NOT_FOUND = "Current user not found";
+    private const string USERID_NOT_FOUND = "Couldnt get current user Id";
     private List<UserViewModel> users = new();
     private HashSet<UserViewModel> selectedItems = new();
     private bool _selectOnRowClick = true;
@@ -77,7 +80,7 @@
     protected async Task DeleteSelected()
     {
         isTableLoading = true;
-        string? currentUserId = await AccountService.GetCurrentUserId();
+        string? currentUserId = await GetUserId();
         if (currentUserId!=null)
         {
             IEnumerable<string>? result = await AccountService.DeleteUsers(selectedItems);
@@ -97,7 +100,21 @@
     {
         isTableLoading = true;
         await AccountService.SetBlock(selectedItems);
-        bool? isBlocked = await AccountService.IsUserBlocked();
+        string? currentUserId = await GetUserId();
+        if (currentUserId==null)
+        {
+            ShowError(USERID_NOT_FOUND);
+            isTableLoading = false;
+            return;
+        }
+        var foundUser = FindUserById(currentUserId);
+        if (foundUser == null)
+        {
+            ShowError(USER_NOT_FOUND);
+            isTableLoading = false;
+            return;
+        }
+        bool isBlocked = foundUser.IsBlocked;
 
         if (isBlocked==true)
             Logout();
@@ -115,11 +132,25 @@
         Navigation.NavigateToLogout("authentication/logout");
     }
 
+
     private async Task<string?> GetUserId()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        return user.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+        ClaimsIdentity? identity = (ClaimsIdentity?)authState.User.Identity;
+        if (identity == null) return null;
+        string? result = identity.Claims.Where(c => c.Type == "sub").Select(c => c.Value).SingleOrDefault();
+        return result;
+
+    }
+    private UserViewModel? FindUserById(string id)
+    {
+        return users.SingleOrDefault(x => x.Id == id);
+
+    }
+
+    private void ShowError(string message)
+    {
+        Snackbar.Add(message, Severity.Error);
 
     }
 
