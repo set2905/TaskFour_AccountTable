@@ -13,29 +13,21 @@ namespace TaskFour_AccountTable.Client.Services
         protected async Task<TReturn?> GetAsync<TReturn>(string relativeUri)
         {
             HttpResponseMessage response = await httpClient.GetAsync(relativeUri);
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<TReturn>();
+                throw new Exception(await response.Content.ReadAsStringAsync());
             }
-            else
-            {
-                string msg = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(msg);
-                throw new Exception(msg);
-            }
+            return await response.Content.ReadFromJsonAsync<TReturn>();
+
         }
         protected async Task<TReturn?> PostAsync<TReturn, TRequest>(string relativeUri, TRequest requestParam)
         {
             HttpResponseMessage response = await httpClient.PostAsJsonAsync(relativeUri, requestParam);
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception(await response.Content.ReadAsStringAsync());              
+                throw new Exception(await response.Content.ReadAsStringAsync());
             }
-
-
-            TReturn? result = await response.Content.ReadFromJsonAsync<TReturn>();
-            return result;
-
+            return await response.Content.ReadFromJsonAsync<TReturn>(); ;
         }
     }
 }
