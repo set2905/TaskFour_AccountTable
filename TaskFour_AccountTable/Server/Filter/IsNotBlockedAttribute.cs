@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace TaskFour_AccountTable.Server.Filter
 {
 
-    public class IsNotBlockedAttribute : Attribute, IAuthorizationFilter
+    public class IsNotBlockedAttribute : Attribute, IAsyncAuthorizationFilter
     {
         private readonly UserManager<User> userManager;
 
@@ -16,7 +16,7 @@ namespace TaskFour_AccountTable.Server.Filter
             this.userManager=userManager;
         }
 
-        public async void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             ClaimsIdentity? identity = (ClaimsIdentity?)context.HttpContext.User.Identity;
             if (identity==null)
@@ -25,7 +25,8 @@ namespace TaskFour_AccountTable.Server.Filter
                 return;
             }
             string? id = identity.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier)
-                   .Select(c => c.Value).SingleOrDefault();
+                   .Select(c => c.Value)
+                   .SingleOrDefault();
             if (id==null)
             {
                 context.Result = new UnauthorizedResult();

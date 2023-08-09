@@ -14,7 +14,7 @@
     <MudPaper Elevation="25">
         <MudToolBar>
             <MudButton OnClick="@BlockSelected" Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
-            <MudIconButton Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
+            <MudIconButton OnClick="@UnblockSelected" Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
             <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
         </MudToolBar>
     </MudPaper>
@@ -57,7 +57,7 @@
         try
         {
             isTableLoading = true;
-            users = await AccountService.GetUsers();
+            users = await AccountService.GetAllUsers();
             isTableLoading = false;
         }
         catch (AccessTokenNotAvailableException exception)
@@ -69,9 +69,14 @@
     protected async Task BlockSelected()
     {
         isTableLoading = true;
-        await AccountService.BlockUsers(selectedItems);
+        await AccountService.SetBlock(selectedItems);
         isTableLoading = false;
-
+    }
+    protected async Task UnblockSelected()
+    {
+        isTableLoading = true;
+        await AccountService.SetBlock(selectedItems, false);
+        isTableLoading = false;
     }
 
 
