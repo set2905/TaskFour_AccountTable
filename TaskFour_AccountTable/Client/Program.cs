@@ -13,7 +13,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 
-builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAccountService, AccountClientService>();
 builder.Services.AddScoped<AppMessageHandler>();
 
 builder.Services.AddHttpClient("TaskFour_AccountTable.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))

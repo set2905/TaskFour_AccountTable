@@ -42,14 +42,23 @@ namespace TaskFour_AccountTable.Server.Controllers
         }
 
         [HttpGet]
-        [Route("IsBlocked")]
-        public async Task<bool> IsBlocked()
+        [Route("AmIBlocked")]
+        public async Task<bool> IsCurrentUserBlocked()
         {
             User? currentuser = await userManager.GetUserAsync(User);
-            if (currentuser==null) return true;
+            if (currentuser==null) 
+                return true;
             return currentuser.IsBlocked;
         }
-
+        [HttpGet]
+        [Route("GetMyId")]
+        public async Task<IActionResult> GetCurrentUserId()
+        {
+            User? currentuser = await userManager.GetUserAsync(User);
+            if (currentuser==null) 
+                return BadRequest("User not found");
+            return new JsonResult(currentuser.Id);
+        }
         [HttpPost]
         [Route("SetBlock")]
         public async Task<IActionResult> SetBlock(SetBlockModel setBlockModel)
@@ -67,25 +76,24 @@ namespace TaskFour_AccountTable.Server.Controllers
             return new JsonResult(succesfulyChangedIds);
         }
 
-        //[HttpPost]
-
-        //public async Task<IActionResult> DeleteUsers(string[] userIds)
-        //{
-        //    List<string> succesfulyDeletedUsers = new();
-        //    foreach (string userId in userIds)
-        //    {
-        //        User? user = await userManager.FindByIdAsync(userId);
-        //        if (user == null||user.IsBlocked) continue;
-        //        user.IsBlocked = true;
-        //        if (!(await userManager.UpdateAsync(user)).Succeeded) continue;
-        //        succesfulyDeletedUsers.Add(userId);
-        //    }
-        //    return new JsonResult(succesfulyDeletedUsers);
-        //}
+        [HttpPost]
+        [Route("DeleteUsers")]
+        public async Task<IActionResult> DeleteUsers(string[] userIds)
+        {
+            List<string> succesfulyDeletedUsers = new();
+            foreach (string userId in userIds)
+            {
+                User? user = await userManager.FindByIdAsync(userId);
+                if (user == null) continue;
+                if (!(await userManager.DeleteAsync(user)).Succeeded) continue;
+                succesfulyDeletedUsers.Add(userId);
+            }
+            return new JsonResult(succesfulyDeletedUsers);
+        }
 
         private async Task LogoutIfBlockedAsync()
         {
-            if (await IsBlocked())
+            if (await IsCurrentUserBlocked())
                 await signInManager.SignOutAsync();
 
         }

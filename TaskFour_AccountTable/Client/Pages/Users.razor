@@ -17,7 +17,7 @@
         <MudToolBar>
             <MudButton OnClick="@BlockSelected" Variant="Variant.Text" Color="Color.Dark">Block</MudButton>
             <MudIconButton OnClick="@UnblockSelected" Icon="@Icons.Material.Filled.LockReset" Color="Color.Dark" />
-            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
+            <MudIconButton OnClick="@DeleteSelected" Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Dark" />
         </MudToolBar>
     </MudPaper>
     <MudTable T="UserViewModel" Loading="@isTableLoading" Items="@users" MultiSelection="true" @bind-SelectedItems="selectedItems" Hover="true" Bordered="true" Striped="true"
@@ -67,14 +67,26 @@
             exception.Redirect();
         }
     }
+    protected async Task DeleteSelected()
+    {
+        isTableLoading = true;
+        string currentUserId = await AccountService.GetCurrentUserId();
+        if (currentUserId!=string.Empty)
+        {
+            IEnumerable<string> result = await AccountService.DeleteUsers(selectedItems);
+            users = users.Where(x => !result.Contains(x.Id)).ToList();
+            if (result.Contains(currentUserId))
+                Logout();
+        }
+        isTableLoading = false;
+    }
 
     protected async Task BlockSelected()
     {
         isTableLoading = true;
         await AccountService.SetBlock(selectedItems);
         if (await AccountService.IsCurrentUserBlocked())
-            Navigation.NavigateToLogout("authentication/logout");
-
+            Logout();
         isTableLoading = false;
     }
     protected async Task UnblockSelected()
@@ -82,6 +94,12 @@
         isTableLoading = true;
         await AccountService.SetBlock(selectedItems, false);
         isTableLoading = false;
+    }
+
+    private void Logout()
+    {
+        Navigation.NavigateToLogout("authentication/logout");
+
     }
 
 

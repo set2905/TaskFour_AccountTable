@@ -1,18 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-
+using MudBlazor;
 
 namespace TaskFour_AccountTable.Client.Services
 {
 
     public class AppMessageHandler : BaseAddressAuthorizationMessageHandler
     {
-        NavigationManager NavigationManager { get; set; }
+        private readonly NavigationManager navigationManager;
+        private readonly ISnackbar snackbar;
 
-        public AppMessageHandler(IAccessTokenProvider provider, NavigationManager navigationManager) : base(provider, navigationManager)
+        public AppMessageHandler(IAccessTokenProvider provider, NavigationManager navigationManager, ISnackbar snackbar) : base(provider, navigationManager)
         {
-            NavigationManager=navigationManager;
+            this.navigationManager=navigationManager;
+            this.snackbar=snackbar;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(
@@ -23,7 +25,8 @@ namespace TaskFour_AccountTable.Client.Services
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 Console.WriteLine("MessageHandler 401");
-                NavigationManager.NavigateToLogout("authentication/logout");
+                snackbar.Add("Unauthorized to perform action. You are being logged out.", Severity.Error);
+                navigationManager.NavigateToLogout("authentication/logout");
             }
 
             return response;
